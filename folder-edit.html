@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    </head>
+    
+    <body onload="fetchData()">
+        <div class="container">
+            <br>
+            <div class="alert text-center" style="display: none;" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <strong id="alert"></strong>
+            </div>
+            <div class="starter-template text-center">
+                <h1 id="folder-name"></h1>
+            </div>
+            <br>
+            <div class="form-horizontal">
+                <div class="form-group">
+                    <label for="inputFolder" class="col-sm-2 control-label">Folder</label>
+                    <div class="col-sm-3">
+                        <input type="text" class="form-control" id="inputFolder" placeholder="Folder">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button class="btn btn-default" onclick="update()">Update</button>
+                        <button class="btn btn-default" onclick="cancel()">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="js/jsforce.js"></script>
+    <script>
+        function fetchData() {
+            document.getElementById("folder-name").innerText = localStorage.getItem("name");
+            document.getElementById("inputFolder").value = localStorage.getItem("name");
+        };
+
+        jsforce.browser.init({
+            clientId: "3MVG9pe2TCoA1Pf6rEeJ8R.bAvcmpyP4fspWbIKVgYFT8aBhedO.cgPlYEJPqwWx2XctzyaVzp1thL2RKs8c.",
+            redirectUri: "http://localhost:8080/oauthcallback.html",
+            proxyUrl: "https://node-salesforce-proxy.herokuapp.com/proxy/"
+        });
+
+        function update() {
+            var conn = jsforce.browser.connection;
+            conn.sobject("Folder__c").update({ 
+                Id : localStorage.getItem("id"),
+                Name : document.getElementById("inputFolder").value
+            },
+            function(err, ret) {
+                if (err || !ret.success) {
+                    return console.error(err, ret);
+                } else {
+                    var message = "Updated Successfully - " + document.getElementById("inputFolder").value;
+
+                    var eventData = {
+                        Message__c: message
+                    };
+                    conn.sobject("Notification__e").create(eventData, (err, res) => {
+                        if (err) {
+                            console.error(err);
+                        } else {
+                            console.log("Event published");
+                        }
+                    });
+
+                    localStorage.setItem("name", document.getElementById("inputFolder").value);
+                    fetchData()
+                    $("#alert").text("Updated Successfully - " + document.getElementById("inputFolder").value);
+                    $(".alert").addClass("alert-success");
+                    $(".alert").show();
+                }
+            });
+        }
+
+        function cancel() {
+            window.location.href = "/";
+        }
+    </script>
+</html>

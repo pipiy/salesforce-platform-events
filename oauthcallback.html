@@ -1,0 +1,13 @@
+<html>
+    <script src="js/jsforce.js"></script>
+    <script>
+        jsforce.browser.init({
+            clientId: "3MVG9pe2TCoA1Pf6rEeJ8R.bAvcmpyP4fspWbIKVgYFT8aBhedO.cgPlYEJPqwWx2XctzyaVzp1thL2RKs8c.",
+            redirectUri: "http://localhost:8080/oauthcallback.html",
+            proxyUrl: "https://node-salesforce-proxy.herokuapp.com/proxy/"
+        });
+        jsforce.browser.on('connect', function(conn) {
+            window.close();
+        });
+    </script>
+</html>

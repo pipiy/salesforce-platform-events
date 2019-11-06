@@ -79,6 +79,9 @@
 
             localStorage.removeItem('id');
             localStorage.removeItem('name');
+
+            var clientId = process.env.clientId;
+            console.log(clientId);
         });
 
         function startQuery() {
@@ -101,8 +104,6 @@
                         $("#loginBtn").addClass("hidden");
                         $('#logoutBtn').removeClass("hidden");
                     }
-                    var clientId = process.env.clientId;
-                    console.log(clientId);
                 });
             });
         }

@@ -1,65 +1,55 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta id="sf-canvas-signed-request" content="<%= verifiedSignedRequestJSON %>" />
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="">
         
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <link href="css/modern-business.css" rel="stylesheet">
     </head>
     <style>
         .hidden {
             display: none;
         }
-        .selected {
-            background-color: brown;
-            color: #FFF;
-        }
-        #tbody tr {
-            cursor: pointer;
-        }
     </style>
     <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="/">JSFORCE</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarText">
+                <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                </li>
+                </ul>
+                <span class="navbar-text"></span>
+                <button type="button" class="btn btn-default navbar-btn hidden" id="loginBtn" onclick="javascript:jsforce.browser.login();">
+                    Sign in
+                </button>
+                <button type="button" class="btn btn-default navbar-btn hidden" id="logoutBtn" onclick="logout();">Logout</button>
+            </div>
+        </nav>
         <div class="container">
-            <nav class="navbar navbar-default">
-                <div class="container-fluid">
-                    <div class="navbar-header">
-                        <button type="button" class="collapsed navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-3" aria-expanded="false">
-                            <span class="sr-only">Toggle navigation</span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </button>
-                        <a href="#" class="navbar-brand">JsForce</a>
-                    </div>
-                    <div class="collapse navbar-collapse navbar-right">
-                        <p class="navbar-text"></p>
-                        <button type="button" class="btn btn-default navbar-btn hidden" id="loginBtn" onclick="javascript:jsforce.browser.login();">
-                            Sign in
-                        </button>
-                        <button type="button" class="btn btn-default navbar-btn hidden" id="logoutBtn" onclick="logout();">Logout</button>
-                    </div>
-                </div>
-            </nav>
-           
-            <table class="table table-bordered table-hover hidden" id="table-records">
-                <thead>
-                    <tr>
-                        <th>Id</th>
-                        <th>Folder Name</th>
-                    </tr>
-                </thead>
-                <tbody id="tbody"></tbody>
-            </table>
+            <h1 class="mt-4 mb-3">Folders
+                <small id="folder-length"></small>
+            </h1>
+
+            <div class="row" id="row"></div>
         </div>
     </body>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-    <script src="https://login.salesforce.com/canvas/sdk/js/42.0/canvas-all.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <script src="js/jsforce.js"></script>
     <script>
         jsforce.browser.init({
             clientId: "3MVG9pe2TCoA1Pf6rEeJ8R.bAvcmpyP4fspWbIKVgYFT8aBhedO.cgPlYEJPqwWx2XctzyaVzp1thL2RKs8c.",
-            redirectUri: "https://platform-app-events.herokuapp.com/oauthcallback.html",
+            redirectUri: "http://localhost:8080/oauthcallback.html",
             proxyUrl: "https://node-salesforce-proxy.herokuapp.com/proxy/"
         });
 
@@ -82,21 +72,39 @@
 
         function startQuery() {
             jsforce.browser.on("connect", function(conn) {
-                conn.query("Select Id, Name From Folder__c Order By CreatedDate Desc", function(err, res) {
+                conn.query("Select Id, Name, CreatedDate, Owner.Name From Folder__c Order By CreatedDate Desc", function(err, res) {
                     if (err) {
                         return console.error(err);
                     } else if (res.records.length > 0) {
+                        $("#folder-length").append("(" + res.records.length + ")");
                         for (var i in res.records) {
-                            $("#tbody").append(
-                                '<tr onclick="tbody(this)">' +
-                                    '<td>' + res.records[i].Id + '</td>' + 
-                                    '<td>' + res.records[i].Name +'</td>' + 
-                                '</tr>'
+                            var date = new Date(res.records[i].CreatedDate);
+                            var year = date.getFullYear();
+                            var month = date.getMonth() + 1;
+                            var day = date.getDate();
+                            var monthName = function(dt){
+                                mlist = [
+                                    "January", "February", "March", "April", "May", "June", "July", "August",
+                                    "September", "October", "November", "December"
+                                ];
+                                return mlist[dt.getMonth()];
+                            };
+                            var fullName = monthName(new Date(year, month, day)); 
+                            $("#row").append(
+                                '<div class="card mb-4">' +
+                                    '<div class="card-body" onclick="selectFolder(this)" style="cursor: pointer;">' +
+                                        '<h2 class="card-title">' + res.records[i].Name + '</h2>' +
+                                        '<p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Reiciendis aliquid atque, nulla? Quos cum ex quis soluta, a laboriosam. Dicta expedita corporis animi vero voluptate voluptatibus possimus, veniam magni quis!</p>' +
+                                        '<input type="hidden" value="' + res.records[i].Id + '"/>' +
+                                    '</div>' +
+                                    '<div class="card-footer text-muted" id="date-' + res.records[i].Id +'">' +
+                                        'Posted on ' + fullName + ' ' + day + ', ' + year + ' by ' + res.records[i].Owner.Name +
+                                    '</div>' +
+                                '</div>'  
                             );
                         }
 
                         getUser();
-                        $("#table-records").removeClass("hidden");
                         $("#loginBtn").addClass("hidden");
                         $('#logoutBtn').removeClass("hidden");
                     }
@@ -113,6 +121,7 @@
             conn.query(userQuery, function(err, res) {
                 if (err) { return handleError(err); }
                 $(".navbar-text").text("Signed in as " + res.records[0].Name);
+                localStorage.setItem("user_name", res.records[0].Name);
             });
         }
 
@@ -121,12 +130,14 @@
             location.reload();
         }
 
-        function tbody(e) {
-            var first = e.firstElementChild.textContent;
-            var last = e.lastElementChild.textContent;
+        function selectFolder(e) {
+            var name = e.firstElementChild.textContent;
+            var id = e.lastElementChild.value;
+            var date = $("#date-" + id)[0].innerText;
 
-            localStorage.setItem("id", first);
-            localStorage.setItem("name", last);
+            localStorage.setItem("folder-name", name);
+            localStorage.setItem("folder-id", id);
+            localStorage.setItem("folder-date", date);
             window.location.href = "folder-edit.html";
         };
     </script>

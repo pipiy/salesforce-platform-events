@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <meta name="description" content="">
         <meta name="author" content="">
-        
+
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
         <link href="css/modern-business.css" rel="stylesheet">
     </head>
@@ -33,7 +33,8 @@
                 <button type="button" class="btn btn-default navbar-btn hidden" id="logoutBtn" onclick="logout();">Logout</button>
             </div>
         </nav>
-        <div class="container">
+
+        <div class="container hidden" id="afterSignin">
             <h1 class="mt-4 mb-3">Folders
                 <small id="folder-length"></small>
             </h1>
@@ -56,11 +57,13 @@
         $(function() {
             if (jsforce.browser.isLoggedIn()) {
                 $("#loginBtn").addClass("hidden");
+                $('#afterSignin').removeClass("hidden");
                 $('#logoutBtn').removeClass("hidden");
                 getUser();
                 startQuery();
             } else {
                 $('#logoutBtn').addClass("hidden");
+                $('#afterSignin').addClass("hidden");
                 $('#loginBtn').removeClass("hidden");
                 getUser();
                 startQuery();
@@ -89,7 +92,7 @@
                                 ];
                                 return mlist[dt.getMonth()];
                             };
-                            var fullName = monthName(new Date(year, month, day)); 
+                            var fullName = monthName(new Date(year, month, day));
                             $("#row").append(
                                 '<div class="card mb-4">' +
                                     '<div class="card-body" onclick="selectFolder(this)" style="cursor: pointer;">' +
@@ -100,13 +103,14 @@
                                     '<div class="card-footer text-muted" id="date-' + res.records[i].Id +'">' +
                                         'Posted on ' + fullName + ' ' + day + ', ' + year + ' by ' + res.records[i].Owner.Name +
                                     '</div>' +
-                                '</div>'  
+                                '</div>'
                             );
                         }
 
                         getUser();
                         $("#loginBtn").addClass("hidden");
                         $('#logoutBtn').removeClass("hidden");
+                        $('#afterSignin').removeClass("hidden");
                     }
                 });
             });

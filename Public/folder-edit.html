@@ -35,7 +35,6 @@
         <div class="container">
             <br />
             <div class="alert text-center" style="display: none;" role="alert">
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <strong id="alert"></strong>
             </div>
             <div class="row">
@@ -164,13 +163,13 @@
                     $("#alert").text("Updated Successfully - " + document.getElementById("inputFolder").value);
                     $(".alert").addClass("alert-success");
                     $(".alert").show();
+                    setTimeout(function () {
+                        $(".alert").hide();
+                    }, 5000);
                 }
             });
         }
 
-        function cancel() {
-            window.location.href = "/";
-        }
         $('#my_modal').on('show.bs.modal', function(e) {
             var title = e.relatedTarget.firstElementChild.alt;
             var imageUrl = e.relatedTarget.firstElementChild.src;

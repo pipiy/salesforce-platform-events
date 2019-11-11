@@ -60,7 +60,9 @@
                     <div class="card my-4">
                         <h5 class="card-header">Attachments</h5>
                         <div class="card-body">
-                            <div class="row" id="media-object"></div>
+                            <div class="container">
+                                <div class="row" id="media-object"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -112,13 +114,11 @@
                             var tags = res.records[i].Tags__c;
 
                             $("#media-object").append(
-                                '<div class="col-lg-3" style="padding-bottom:5px;">' +
-                                    '<div class="media">' +
-                                        '<a href="#my_modal" data-toggle="modal">' +
-                                            '<img style="width:60px;" src="' + orgUrl + '/servlet/servlet.FileDownload?file=' + fileId + '" alt="' + fileName + '" class="mr-3">' +
-                                            '<input type="hidden" value="' + tags + '">' +
-                                        '</a>' +
-                                    '</div>' +
+                                '<div class="col-3" style="padding-bottom:5px" >' +
+                                    '<a href="#my_modal" data-toggle="modal">' +
+                                        '<img style="width:60px;" src="' + orgUrl + '/servlet/servlet.FileDownload?file=' + fileId + '" alt="' + fileName + '" class="mr-3">' +
+                                        '<input type="hidden" value="' + tags + '">' +
+                                    '</a>' +
                                 '</div>'
                             );
                         }
